@@ -3,7 +3,7 @@ package Thread::Suspend;
 # Make sure we have version info for this module
 # Make sure we do everything by the book from now on
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 use strict;
 
 # Only load the things that are necessary
@@ -548,6 +548,11 @@ whether all of the specified threads have been attempted to be killed.
 
 You can call Thread::Running's C<running> method to find out which threads
 are actually running.
+
+=head1 REQUIRED MODULES
+
+ load (any)
+ Thread::Signal (0.07)
 
 =head1 CAVEATS
 
