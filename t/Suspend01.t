@@ -5,7 +5,7 @@ BEGIN {				# Magic Perl CORE pragma
     }
 }
 
-use Test::More tests => 20;
+use Test::More tests => 23;
 use strict;
 use warnings;
 
@@ -18,8 +18,10 @@ use_ok( 'Thread::Suspend' );
 can_ok( $_,qw(
  suspend
  resume
+ suspended
  iambusy
  iamdone
+ kill
 ) ) foreach qw(Thread::Suspend threads);
 
 my $thread = threads->new( sub {
@@ -38,6 +40,7 @@ ok( (scalar $thread->suspend),"Check if object->suspend succesful" );
 sleep $times;
 
 ok( ($count == 0),"check if not incremented, object->suspend" );
+ok( (scalar $thread->suspended),"Check if object->suspended" );
 ok( (scalar $thread->resume),"Check if object->suspend successful" );
 sleep $times;
 ok( ($count and $count <= $times),
@@ -49,6 +52,8 @@ ok( (scalar threads->suspend( $thread )),
 sleep $times;
 
 ok( ($count == 0),"check if not incremented, threads->suspend( object )" );
+ok( (scalar threads->suspended( $thread )),
+ "Check if threads->suspended( object )" );
 ok( (scalar threads->resume( $thread )),
  "Check if threads->resume( object ) successful" );
 sleep $times;
@@ -61,6 +66,8 @@ ok( (scalar threads->suspend( $thread->tid )),
 sleep $times;
 
 ok( ($count == 0),"check if not incremented, threads->suspend( object->tid )" );
+ok( (scalar threads->suspended( $thread->tid )),
+ "Check if threads->suspended( tid )" );
 ok( (scalar threads->resume( $thread->tid )),
  "Check if threads->resume( object->tid ) successful" );
 sleep $times;

@@ -11,4 +11,6 @@ t/Suspend03.t
 t/Suspend04.t
 t/Suspend05.t
 t/Suspend06.t
+t/Suspend07.t
+t/Suspend08.t
 META.yml                                Module meta-data (added by MakeMaker)

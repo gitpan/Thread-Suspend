@@ -1,3 +1,12 @@
+0.03	5 September 2003
+	Added method/subroutine "suspended" to allow checking which threads
+	have actually been suspended.  Added test-suite and documentation.
+
+	Added method/subroutine "kill" that allows you to stop another thread
+	dead in its tracks.  Added tests and documentation.  Since this
+	requires Thread::Exit to have been loaded _before_ Thread::Suspend,
+	killing is only allowed when that actually has happened.
+
 0.02	30 August 2003
 	Added methods/subroutines "iambusy" and "iamdone" to mark sections
 	of code in a thread that may not be suspended.  Added tests for this

@@ -1,0 +1,2 @@
+Fix the problem with ->kill in the test-suite: causes a panic: COND_DESTROY
+error, but apparently only in the test-suite.
