@@ -1,2 +1,18 @@
+0.02	30 August 2003
+	Added methods/subroutines "iambusy" and "iamdone" to mark sections
+	of code in a thread that may not be suspended.  Added tests for this
+	new functionality and adapted the MANIFEST accordingly.
+
+	Added note to documentation to tell that if you're using "iambusy"
+	and "iamdone" in threads, you don't need working signals, which would
+	make Thread::Suspend usable on a lot more platforms.
+
+	Now uses load.pm to reduce the number of subroutines loaded at compile
+	time.  Changed all package lexicals to our, which means they are now
+	also available externally, which may or may not be a good thing.
+	Added dependency to load.pm.
+
+	Fixed some documentation errors.
+
 0.01	21 August 2003
 	First version of Thread::Suspend.

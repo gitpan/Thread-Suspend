@@ -70,7 +70,7 @@ $thread[$_]->join foreach @todo;
 sub breathe {
     my $id = shift;
     while (defined $count[$id]) {
-       {lock @count; $count[$id]++};
-       sleep 1;
+        {lock @count; $count[$id]++};
+        sleep 1;
     }
 } #breathe

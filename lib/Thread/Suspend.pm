@@ -3,8 +3,12 @@ package Thread::Suspend;
 # Make sure we have version info for this module
 # Make sure we do everything by the book from now on
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 use strict;
+
+# Only load the things that are necessary
+
+use load;
 
 # Make sure we can do threads
 # Make sure we can do shared variables
@@ -14,16 +18,20 @@ use threads::shared ();
 
 # Initialize reference to running check
 
-my $running =
+our $running =
  defined( $Thread::Running::VERSION ) ? \&Thread::Running::running  : '';
     
 # Hash with suspended thread ID's
 
-my @suspended : shared;
+our @suspended : shared;
 
 # Initialize signal to be used at compile time
 
-my $signal; BEGIN { $signal = 'CONT' };
+our $signal; BEGIN { $signal = 'CONT' };
+
+# Initialize the busy flag
+
+our $busy = 0;
 
 # Set the signal handler to be used
 # Make sure it is always inherited
@@ -34,6 +42,77 @@ Thread::Signal->automatic( $signal );
 # Satisfy -require-
 
 1;
+
+#---------------------------------------------------------------------------
+
+# Stuff that should really be in threads.pm
+
+#---------------------------------------------------------------------------
+#  IN: 1 class (ignored) or object to be checked
+#      2..N additional thread (ID's) that should be checked (default: all)
+# OUT: 1..N thread ID's that are still running
+
+sub threads::suspend {
+
+# Lose the class
+# Go do the actual check
+
+    shift unless ref $_[0];
+    goto &suspend;
+} #threads::suspend
+
+#---------------------------------------------------------------------------
+#  IN: 1 class (ignored) or object to be checked
+#      2..N additional thread (ID's) that should be checked (default: all)
+# OUT: 1..N thread ID's that can be join()ed
+
+sub threads::resume {
+
+# Lose the class
+# Go do the actual check
+
+    shift unless ref $_[0];
+    goto &resume;
+} #threads::resume
+
+#---------------------------------------------------------------------------
+#  IN: 1 class/object (ignored)
+
+sub threads::iambusy { goto &iambusy } #threads::iambusy
+
+#---------------------------------------------------------------------------
+#  IN: 1 class/object (ignored)
+
+sub threads::iamdone { goto &iamdone } #threads::iamdone
+
+#---------------------------------------------------------------------------
+# NOTE: signal handling subroutine _must_ exist and cannot be AUTOLOADed
+
+sub _suspending {
+
+# Return now if we are busy
+
+    return if $busy;
+
+# Obtain the thread ID
+# While we're supposed to be suspended
+#  Wait until we can get a lock
+#  Release the lock, wait until someone tells us to check again
+
+    my $tid = threads->tid;
+    while ($suspended[$tid]) {
+        {
+         lock @suspended;
+         threads::shared::cond_wait( @suspended );
+        }
+    }
+} #_suspending
+
+#---------------------------------------------------------------------------
+
+# All the following subroutines are loaded only when they are needed
+
+__END__
 
 #---------------------------------------------------------------------------
 
@@ -112,36 +191,14 @@ sub resume {
 } #resume
 
 #---------------------------------------------------------------------------
+#  IN: 1 class/object (ignored)
 
-# Stuff that should really be in threads.pm
-
-#---------------------------------------------------------------------------
-#  IN: 1 class (ignored) or object to be checked
-#      2..N additional thread (ID's) that should be checked (default: all)
-# OUT: 1..N thread ID's that are still running
-
-sub threads::suspend {
-
-# Lose the class
-# Go do the actual check
-
-    shift unless ref $_[0];
-    goto &suspend;
-} #threads::suspend
+sub iambusy { $busy++ } #iambusy
 
 #---------------------------------------------------------------------------
-#  IN: 1 class (ignored) or object to be checked
-#      2..N additional thread (ID's) that should be checked (default: all)
-# OUT: 1..N thread ID's that can be join()ed
+#  IN: 1 class/object (ignored)
 
-sub threads::resume {
-
-# Lose the class
-# Go do the actual check
-
-    shift unless ref $_[0];
-    goto &resume;
-} #threads::resume
+sub iamdone { _suspending() if $busy and !--$busy } #iamdone
 
 #---------------------------------------------------------------------------
 
@@ -161,7 +218,7 @@ sub import {
 
     shift;
     my $namespace = (scalar caller() ).'::';
-    @_ = qw(suspend resume) unless @_;
+    @_ = qw(suspend resume iambusy iamdone) unless @_;
     no strict 'refs';
     *{$namespace.$_} = \&$_ foreach @_;
 } #import
@@ -189,24 +246,6 @@ sub _suspended {
 
 #---------------------------------------------------------------------------
 
-sub _suspending {
-
-# Obtain the thread ID
-# While we're supposed to be suspended
-#  Wait until we can get a lock
-#  Release the lock, wait until someone tells us to check again
-
-    my $tid = threads->tid;
-    while ($suspended[$tid]) {
-        {
-         lock @suspended;
-         threads::shared::cond_wait( @suspended );
-        }
-    }
-} #_suspending
-
-#---------------------------------------------------------------------------
-
 __END__
 
 =head1 NAME
@@ -215,7 +254,7 @@ Thread::Suspend - suspend and resume threads from another thread
 
 =head1 SYNOPSIS
 
-    use Thread::Suspend;             # exports suspend() and resume()
+    use Thread::Suspend;             # exports suspend, resume, iambusy, iamdone
     use Thread::Suspend qw(suspend); # only exports suspend()
     use Thread::Suspend ();          # threads class methods only
 
@@ -227,6 +266,9 @@ Thread::Suspend - suspend and resume threads from another thread
 
     $thread->resume;                 # resume a single thread
     threads->resume;                 # resume all suspended threads
+
+    threads->iambusy;                # don't allow suspending in thread
+    threads->iamdone;                # allow suspending again in thread
 
 =head1 DESCRIPTION
 
@@ -307,10 +349,50 @@ In list context it returns thread id's of the threads that have resumed.
 In scalar context, it just returns 1 or 0 to indicate whether all of the
 (implicitely) indicated threads have resumed.
 
+=head2 iambusy
+
+ threads->iambusy;         # don't allow suspending right now
+ iambusy();                # same
+
+Sometimes you don't want certain sections of your code in a thread to be
+interrupted.  The "iambusy" method can be called to indicate such a section.
+It can either be called as a class method or a subroutine (if exported).
+
+Call the L<iamdone> method to mark that the execution of the thread may
+be suspended again from other threads.  Nested calls to "iambusy" are
+allowed.  Only when each call to "iambusy" has been counteracted by a call
+to "iamdone" is suspending of the current thread allowed again.
+
+Please note that if you call the "iambusy" method at the beginning of the
+execution of a thread, and never call the "iamdone" method in that thread,
+then that thread  will B<never> get suspended.
+
+=head2 iamdone
+
+ threads->iamdone;         # allow suspending again in principle
+ iamdone();                # same
+
+The "iamdone" method can be called to indicate that the current thread may
+be suspended again from another thread.  It is the opposite of L<iambusy>.
+Please note that the number of "iamdone" method calls should counteract the
+number of nested "iambusy" calls to really allow suspending of the current
+thread again.
+
+If suspending of the thread is allowed again, then immediate suspending of
+the thread will occur if another thread asked for suspending of the current
+thread while the current thread was busy.
+
 =head1 CAVEATS
 
 This module is dependent on the L<Thread::Signal> module, with all of its
-CAVEATS applicable.
+CAVEATS applicable.  However, if you are using the L<iambusy> and L<iamdone>
+methods to mark critical sections in your threaded code, this has the
+side-effect of not having to have working signals on your system.  This is
+caused by the fact that L<iamdone> checks the "suspended" flag without
+having received a signal.
+
+This module uses the L<load> module to make sure that subroutines are loaded
+only when they are needed.
 
 =head1 WHY NOT USE "SIGSTOP" AND "SIGCONT"?
 
@@ -322,10 +404,6 @@ Idea(tm).  Therefore a more general approach involving locking on a
 shared array, was chosen.
 
 =head1 TODO
-
-Not sure whether some way for dis-allowing suspends inside a thread is
-needed.  Possibly when locking of variables is involved.  This will be
-added as the need arises.
 
 Examples should be added.
 
@@ -343,6 +421,6 @@ modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<threads>, L<Thread::Signal>, L<Thread::Running>.
+L<threads>, L<Thread::Signal>, L<Thread::Running>, L<load>.
 
 =cut

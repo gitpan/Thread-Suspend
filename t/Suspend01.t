@@ -18,12 +18,14 @@ use_ok( 'Thread::Suspend' );
 can_ok( $_,qw(
  suspend
  resume
+ iambusy
+ iamdone
 ) ) foreach qw(Thread::Suspend threads);
 
 my $thread = threads->new( sub {
     while (defined $count) {
-       {lock $count; $count++};
-       sleep 1;
+        {lock $count; $count++};
+        sleep 1;
     }
 } );
 

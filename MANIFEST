@@ -8,4 +8,7 @@ lib/Thread/Suspend.pm
 t/Suspend01.t
 t/Suspend02.t
 t/Suspend03.t
+t/Suspend04.t
+t/Suspend05.t
+t/Suspend06.t
 META.yml                                Module meta-data (added by MakeMaker)

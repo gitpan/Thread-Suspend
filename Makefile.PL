@@ -8,6 +8,7 @@ WriteMakefile (
  ABSTRACT	=> 'suspend and resume threads from other threads',
  VERSION_FROM	=> 'lib/Thread/Suspend.pm',
  PREREQ_PM	=> {
-		   Thread::Signal => '0.07',
+		   'load' => 0,
+		   'Thread::Signal' => '0.07',
                    },
 );
