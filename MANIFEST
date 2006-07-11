@@ -1,16 +1,12 @@
+Changes
 MANIFEST
-CHANGELOG
-README
-TODO
-VERSION
 Makefile.PL
+README
 lib/Thread/Suspend.pm
-t/Suspend01.t
-t/Suspend02.t
-t/Suspend03.t
-t/Suspend04.t
-t/Suspend05.t
-t/Suspend06.t
-t/Suspend07.t
-t/Suspend08.t
-META.yml                                Module meta-data (added by MakeMaker)
+t/00_basic.t
+t/01_self.t
+t/02_signal.t
+t/03_detach.t
+t/04_all.t
+t/05_some.t
+META.yml                                 Module meta-data (added by MakeMaker)

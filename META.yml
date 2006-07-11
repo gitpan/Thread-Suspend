@@ -1,12 +1,13 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Thread-Suspend
-version:      0.04
+version:      1.01
 version_from: lib/Thread/Suspend.pm
 installdirs:  site
 requires:
-    load:                          0
-    Thread::Signal:                0.07
+    Test::More:                    0.5
+    threads:                       1.36
+    threads::shared:               1.01
 
 distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.21
+generated_by: ExtUtils::MakeMaker version 6.30
