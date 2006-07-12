@@ -1,5 +1,8 @@
 Revision history for Perl extension Thread::Suspend.
 
+1.02 Wed Jul 12 16:00:03 EDT 2006
+	- Prevent 'deadlocks' in tests
+
 1.01 Tue Jul 11 09:18:45 EDT 2006
 	- Initial release
 

@@ -12,10 +12,10 @@ $SIG{'KILL'} = sub { threads->exit(); };
 sub thr_func
 {
     my $tid = threads->tid();
-    { lock(%COUNTS); $COUNTS{$tid} = 0; }
+    $COUNTS{$tid} = 0;
     threads->self()->suspend();
     while (1) {
-        { lock(%COUNTS); $COUNTS{$tid}++; }
+        $COUNTS{$tid}++;
         threads->yield();
     }
 }
@@ -37,7 +37,7 @@ sub check {
 
 my @threads;
 for (1..3) {
-    push(@threads, threads->new('thr_func'));
+    push(@threads, threads->create('thr_func'));
 }
 threads->yield();
 

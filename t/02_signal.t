@@ -16,7 +16,7 @@ sub thr_func
 {
     my $tid = threads->tid();
     while (1) {
-        { lock(%COUNTS); $COUNTS{$tid}++; }
+        $COUNTS{$tid}++;
         threads->yield();
     }
 }
@@ -38,7 +38,7 @@ sub check {
 
 my @threads;
 for (1..1) {
-    unshift(@threads, threads->new('thr_func'));
+    unshift(@threads, threads->create('thr_func'));
 }
 threads->yield();
 
@@ -82,8 +82,6 @@ foreach my $thr (@threads) {
 $SIG{'ILL'} = sub {
     is(shift, 'ILL', 'Received suspend signal');
 };
-
-$SIG{'KILL'} = sub { threads->exit(); };
 
 my $thr = threads->create('thr_func');
 

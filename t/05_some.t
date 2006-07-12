@@ -10,7 +10,7 @@ my %DONE :shared;
 
 $SIG{'KILL'} = sub {
     my $tid = threads->tid();
-    { lock(%DONE); $DONE{$tid} = 1; }
+    $DONE{$tid} = 1;
     threads->exit();
 };
 
@@ -19,7 +19,7 @@ sub thr_func
 {
     my $tid = threads->tid();
     while (1) {
-        { lock(%COUNTS); $COUNTS{$tid}++; }
+        $COUNTS{$tid}++;
         threads->yield();
     }
 }
@@ -41,7 +41,7 @@ sub check {
 
 my @threads;
 for (1..3) {
-    unshift(@threads, threads->new('thr_func'));
+    unshift(@threads, threads->create('thr_func'));
 }
 threads->yield();
 

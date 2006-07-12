@@ -3,7 +3,7 @@ package Thread::Suspend; {
 use strict;
 use warnings;
 
-our $VERSION = 1.01;
+our $VERSION = 1.02;
 
 use threads 1.36;
 use threads::shared 1.01;
@@ -155,7 +155,7 @@ Thread::Suspend - Suspend and resume operations for threads
 
 =head1 VERSION
 
-This document describes Thread::Suspend version 1.01
+This document describes Thread::Suspend version 1.02
 
 =head1 SYNOPSIS
 
@@ -263,6 +263,8 @@ will resume execution.  Returns a list of the threads operated on.
 
 =head1 CAVEATS
 
+Subject to the limitations of L<threads/"THREAD SIGNALLING">.
+
 A thread that has been suspended will not respond to any other signal or
 command until its suspension count is brought back to zero via resume calls.
 
@@ -294,7 +296,7 @@ Thread::Suspend Discussion Forum on CPAN:
 L<http://www.cpanforum.com/dist/Thread-Suspend>
 
 Annotated POD for Thread::Suspend:
-L<http://annocpan.org/~JDHEDDEN/Thread-Suspend-1.01/lib/Thread/Suspend.pm>
+L<http://annocpan.org/~JDHEDDEN/Thread-Suspend-1.02/lib/Thread/Suspend.pm>
 
 L<threads>, L<threads::shared>
 
