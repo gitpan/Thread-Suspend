@@ -3,7 +3,7 @@ package Thread::Suspend; {
 use strict;
 use warnings;
 
-our $VERSION = 1.02;
+our $VERSION = 1.03;
 
 use threads 1.36;
 use threads::shared 1.01;
@@ -36,9 +36,9 @@ sub import
 
 sub threads::suspend
 {
-    my ($class, @threads) = @_;
+    my ($thing, @threads) = @_;
 
-    if ($class eq 'threads') {
+    if ($thing eq 'threads') {
         if (@threads) {
             # Suspend specified list of threads
             @threads = grep { $_ }
@@ -52,7 +52,7 @@ sub threads::suspend
         }
     } else {
         # Suspend a single thread
-        push(@threads, $class);
+        push(@threads, $thing);
     }
 
     # Suspend threads
@@ -71,17 +71,17 @@ sub threads::suspend
     }
 
     # Return list of affected threads
-    return ($class eq 'threads')
+    return ($thing eq 'threads')
                     ? grep { $_->is_running() } @threads
-                    : $class;
+                    : $thing;
 }
 
 
 sub threads::resume
 {
-    my ($class, @threads) = @_;
+    my ($thing, @threads) = @_;
 
-    if ($class eq 'threads') {
+    if ($thing eq 'threads') {
         if (@threads) {
             # Resume specified threads
             @threads = grep { $_ }
@@ -98,7 +98,7 @@ sub threads::resume
         }
     } else {
         # Resume a single thread
-        push(@threads, $class);
+        push(@threads, $thing);
     }
 
     # Resume threads
@@ -121,7 +121,7 @@ sub threads::resume
     }
 
     # Return list of affected threads
-    return ($class eq 'threads') ? @threads : $class;
+    return ($thing eq 'threads') ? @threads : $thing;
 }
 
 
@@ -155,7 +155,7 @@ Thread::Suspend - Suspend and resume operations for threads
 
 =head1 VERSION
 
-This document describes Thread::Suspend version 1.02
+This document describes Thread::Suspend version 1.03
 
 =head1 SYNOPSIS
 
@@ -180,8 +180,6 @@ This module adds suspend and resume operations for threads.
 
 Suspensions are cumulative, and need to be matched by an equal number of
 resume calls.
-
-It is possible for a thread to suspend itself.
 
 =head2 Declaration
 
@@ -217,6 +215,16 @@ by L<kill()|perlfunc/"kill SIGNAL, LIST">.
 
 Adds 1 to the suspension count of the thread, and suspends its execution if
 running.  Returns the I<threads> object.
+
+It is possible for a thread to suspend itself.  This is useful for starting a
+thread early in an application, and having it C<wait> until needed:
+
+    sub thr_func
+    {
+        # Suspend until needed
+        threads->self()->suspend();
+        ...
+    }
 
 =item threads->suspend()
 
@@ -265,17 +273,29 @@ will resume execution.  Returns a list of the threads operated on.
 
 Subject to the limitations of L<threads/"THREAD SIGNALLING">.
 
-A thread that has been suspended will not respond to any other signal or
-command until its suspension count is brought back to zero via resume calls.
+A thread that has been suspended will not respond to any other signals or
+commands until its suspension count is brought back to zero via resume calls.
+
+Any locks held by a thread when it is suspended will remain in effect.  To
+alleviate this potential problem, lock any such variables as part of a limited
+scope that also contains the suspension call:
+
+    {
+        lock($var);
+        $thr->suspend();
+    }
 
 Calling C<-E<gt>resume()> on an non-suspended thread is ignored.
 
 Detached threads can only be operated upon if their I<threads> object is used.
-For example:
+For example, the following works:
 
+    my $thr = threads->create(...);
     $thr->detach();
-    $thr->suspend();
-    threads->resume($thr);
+    ...
+    $thr->suspend();  # or threads->suspend($thr);
+    ...
+    $thr->resume();   # or threads->resume($thr);
 
 Threads that have finished execution are, for the most part, ignored by this
 module.
@@ -284,7 +304,7 @@ module.
 
 Perl 5.8.0 or later
 
-L<threads> 1.34 or later
+L<threads> 1.36 or later
 
 L<threads::shared> 1.01 or later
 
@@ -296,7 +316,7 @@ Thread::Suspend Discussion Forum on CPAN:
 L<http://www.cpanforum.com/dist/Thread-Suspend>
 
 Annotated POD for Thread::Suspend:
-L<http://annocpan.org/~JDHEDDEN/Thread-Suspend-1.02/lib/Thread/Suspend.pm>
+L<http://annocpan.org/~JDHEDDEN/Thread-Suspend-1.03/lib/Thread/Suspend.pm>
 
 L<threads>, L<threads::shared>
 
