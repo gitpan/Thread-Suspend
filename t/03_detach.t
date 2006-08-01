@@ -27,8 +27,8 @@ sub check {
     my ($thr, $running) = @_;
     my $tid = $thr->tid();
 
-    my $begin = $COUNTS{$tid};
     threads->yield();
+    my $begin = $COUNTS{$tid};
     sleep(1);
     my $end = $COUNTS{$tid};
     if ($running eq 'running') {

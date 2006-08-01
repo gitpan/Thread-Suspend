@@ -1,4 +1,4 @@
-Thread::Suspend version 1.03
+Thread::Suspend version 1.04
 ============================
 
 This module adds suspend and resume operations for threads.

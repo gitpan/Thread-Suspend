@@ -25,8 +25,8 @@ sub check {
     my ($thr, $running) = @_;
     my $tid = $thr->tid();
 
-    my $begin = $COUNTS{$tid};
     threads->yield();
+    my $begin = $COUNTS{$tid};
     sleep(1);
     my $end = $COUNTS{$tid};
     if ($running eq 'running') {
@@ -87,6 +87,7 @@ my $thr = threads->create('thr_func');
 
 is($thr->suspend(), $thr, 'Sent suspend signal');
 threads->yield();
+sleep(1);
 is($thr->kill('KILL'), $thr, 'Thread killed');
 $thr->join();
 
