@@ -1,7 +1,10 @@
 Revision history for Perl extension Thread::Suspend.
 
+1.05 Wed Aug  2 13:54:17 EDT 2006
+	- More fixes to tests
+
 1.04 Tue Aug  1 13:56:38 EDT 2006
-	- Fixes in tests
+	- Fixes to tests
 
 1.03 Thu Jul 13 08:53:36 EDT 2006
 	- Added caveat to POD concerning locks

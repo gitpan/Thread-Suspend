@@ -12,7 +12,7 @@ $SIG{'KILL'} = sub { threads->exit(); };
 sub thr_func
 {
     my $tid = threads->tid();
-    $COUNTS{$tid} = 0;
+    $COUNTS{$tid} = 1;
     threads->self()->suspend();
     while (1) {
         $COUNTS{$tid}++;
@@ -24,10 +24,16 @@ sub check {
     my ($thr, $running) = @_;
     my $tid = $thr->tid();
 
-    threads->yield();
-    my $begin = $COUNTS{$tid};
-    sleep(1);
-    my $end = $COUNTS{$tid};
+    my ($begin, $end);
+    do {
+        do {
+            threads->yield();
+            $begin = $COUNTS{$tid};
+        } while (! $begin);
+        threads->yield();
+        sleep(1);
+        $end = $COUNTS{$tid};
+    } while (! $end);
     if ($running eq 'running') {
         ok($begin < $end, "Thread $tid running");
     } else {
@@ -40,6 +46,7 @@ for (1..3) {
     push(@threads, threads->create('thr_func'));
 }
 threads->yield();
+sleep(1);
 
 is(scalar(threads->list()), 3, 'Threads created');
 
@@ -56,19 +63,22 @@ while (my $thr = pop(@threads)) {
     check($thr, 'stopped');
 
     $thr->suspend();
+    threads->yield();
     is(scalar(threads->is_suspended())-1, scalar(@threads), "Threads suspended");
     is(scalar(grep { $_ == $thr } threads->is_suspended()), 1, 'In suspend list');
     is($thr->is_suspended(), 2, "Thread $tid suspended twice");
     check($thr, 'stopped');
 
     $thr->resume();
+    threads->yield();
     is(scalar(threads->is_suspended())-1, scalar(@threads), "Threads suspended");
     is(scalar(grep { $_ == $thr } threads->is_suspended()), 1, 'In suspend list');
     is($thr->is_suspended(), 1, "Thread $tid still suspended");
     check($thr, 'stopped');
-    is($COUNTS{$tid}, 0, "Thread $tid has 0 count");
+    is($COUNTS{$tid}, 1, "Thread $tid has 1 count");
 
     $thr->resume();
+    threads->yield();
     is(scalar(threads->is_suspended()), scalar(@threads), "Threads suspended");
     is(scalar(grep { $_ == $thr } threads->is_suspended()), 0, 'Not in suspend list');
     is($thr->is_suspended(), 0, "Thread $tid not suspended");

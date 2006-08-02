@@ -28,10 +28,16 @@ sub check {
     my ($thr, $running) = @_;
     my $tid = $thr->tid();
 
-    threads->yield();
-    my $begin = $COUNTS{$tid};
-    sleep(1);
-    my $end = $COUNTS{$tid};
+    my ($begin, $end);
+    do {
+        do {
+            threads->yield();
+            $begin = $COUNTS{$tid};
+        } while (! $begin);
+        threads->yield();
+        sleep(1);
+        $end = $COUNTS{$tid};
+    } while (! $end);
     if ($running eq 'running') {
         ok($begin < $end, "Thread $tid running");
     } else {
@@ -44,6 +50,7 @@ for (1..3) {
     unshift(@threads, threads->create('thr_func'));
 }
 threads->yield();
+sleep(1);
 
 is(scalar(threads->list()), 3, 'Threads created');
 ok(! threads->is_suspended(), 'No threads suspended');
@@ -56,6 +63,8 @@ foreach my $thr (@threads) {
 # Test all threads
 
 my @suspended = threads->suspend();
+threads->yield();
+sleep(1);
 is(scalar(@suspended), 3, 'Suspended threads');
 foreach my $thr (@suspended) {
     is(scalar(grep { $_ == $thr } @threads), 1, 'Thread suspended');
@@ -73,6 +82,8 @@ foreach my $thr (@threads) {
 }
 
 is(scalar(threads->suspend()), 3, 'Suspending again');
+threads->yield();
+sleep(1);
 foreach my $thr (@threads) {
     my $tid = $thr->tid();
     is($thr->is_suspended(), 2, "Thread $tid suspended");
@@ -80,6 +91,8 @@ foreach my $thr (@threads) {
 }
 
 is(scalar(threads->resume()), 3, 'Resuming once');
+threads->yield();
+sleep(1);
 foreach my $thr (@threads) {
     my $tid = $thr->tid();
     is($thr->is_suspended(), 1, "Thread $tid suspended");
@@ -87,6 +100,8 @@ foreach my $thr (@threads) {
 }
 
 is(scalar(threads->resume()), 3, 'Resuming again');
+threads->yield();
+sleep(1);
 foreach my $thr (@threads) {
     my $tid = $thr->tid();
     is($thr->is_suspended(), 0, "Thread $tid not suspended");
@@ -96,10 +111,14 @@ foreach my $thr (@threads) {
 # Test threads with extra suspends
 
 is($threads[1]->suspend(), $threads[1], 'Suspend thread');
+threads->yield();
+sleep(1);
 is(scalar(threads->is_suspended()), 1, '1 thread suspended');
 check($threads[1], 'stopped');
 
 @suspended = threads->suspend();
+threads->yield();
+sleep(1);
 is(scalar(@suspended), 3, 'Suspended threads');
 foreach my $thr (@suspended) {
     is(scalar(grep { $_ == $thr } @threads), 1, 'Thread suspended');
@@ -113,12 +132,16 @@ foreach my $thr (@threads) {
 }
 
 is(scalar(threads->resume()), 3, 'Resuming threads');
+threads->yield();
+sleep(1);
 is(scalar($threads[0]->is_suspended()), 0, 'Thread not suspended');
 is(scalar($threads[1]->is_suspended()), 1, 'Thread suspended');
 is(scalar($threads[2]->is_suspended()), 0, 'Thread not suspended');
 check($threads[1], 'stopped');
 
 is($threads[1]->resume(), $threads[1], 'Thread resumed');
+threads->yield();
+sleep(1);
 
 foreach my $thr (@threads) {
     my $tid = $thr->tid();
@@ -132,12 +155,16 @@ $threads[1]->detach();
 ok($threads[1]->is_detached(), 'Thread detached');
 
 @suspended = threads->suspend();
+threads->yield();
+sleep(1);
 is(scalar(@suspended), 2, 'Suspended threads');
 is(scalar(grep { $_ == $threads[0] } @suspended), 1, 'Thread suspended');
 is(scalar(grep { $_ == $threads[2] } @suspended), 1, 'Thread suspended');
 is(scalar($threads[1]->is_suspended()), 0, 'Thread not suspended');
 
 is(scalar(threads->resume()), 2, 'Resuming threads');
+threads->yield();
+sleep(1);
 
 foreach my $thr (@threads) {
     my $tid = $thr->tid();

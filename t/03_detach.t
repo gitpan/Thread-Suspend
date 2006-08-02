@@ -27,10 +27,16 @@ sub check {
     my ($thr, $running) = @_;
     my $tid = $thr->tid();
 
-    threads->yield();
-    my $begin = $COUNTS{$tid};
-    sleep(1);
-    my $end = $COUNTS{$tid};
+    my ($begin, $end);
+    do {
+        do {
+            threads->yield();
+            $begin = $COUNTS{$tid};
+        } while (! $begin);
+        threads->yield();
+        sleep(1);
+        $end = $COUNTS{$tid};
+    } while (! $end);
     if ($running eq 'running') {
         ok($begin < $end, "Thread $tid running");
     } else {
@@ -43,6 +49,7 @@ for (1..3) {
     push(@threads, threads->create('thr_func'));
 }
 threads->yield();
+sleep(1);
 
 is(scalar(threads->list()), 3, 'Threads created');
 
@@ -50,6 +57,7 @@ foreach my $thr (@threads) {
     $thr->detach();
 }
 threads->yield();
+sleep(1);
 
 is(scalar(threads->list()), 0, 'Threads detached');
 
@@ -60,19 +68,23 @@ foreach my $thr (@threads) {
     check($thr, 'running');
 
     $thr->suspend();
+    threads->yield();
     is($thr->is_suspended(), 1, "Thread $tid suspended");
     check($thr, 'stopped');
 
     $thr->suspend();
+    threads->yield();
     ok(! threads->is_suspended(), 'No reported suspended threads');
     is($thr->is_suspended(), 2, "Thread $tid suspended twice");
     check($thr, 'stopped');
 
     $thr->resume();
+    threads->yield();
     is($thr->is_suspended(), 1, "Thread $tid still suspended");
     check($thr, 'stopped');
 
     $thr->resume();
+    threads->yield();
     is($thr->is_suspended(), 0, "Thread $tid not suspended");
     check($thr, 'running');
 
