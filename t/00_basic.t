@@ -18,8 +18,7 @@ $SIG{'KILL'} = sub { threads->exit(); };
 sub thr_func
 {
     my $tid = threads->tid();
-    while (1) {
-        $COUNTS{$tid}++;
+    while (++$COUNTS{$tid}) {
         threads->yield();
     }
 }
@@ -34,8 +33,9 @@ sub check {
             threads->yield();
             $begin = $COUNTS{$tid};
         } while (! $begin);
-        threads->yield();
+        threads->yield() for (1..3);
         sleep(1);
+        threads->yield() for (1..3);
         $end = $COUNTS{$tid};
     } while (! $end);
     if ($running eq 'running') {
