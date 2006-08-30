@@ -3,9 +3,9 @@ package Thread::Suspend; {
 use strict;
 use warnings;
 
-our $VERSION = 1.06;
+our $VERSION = 1.07;
 
-use threads 1.36;
+use threads 1.39;
 use threads::shared 1.01;
 
 my %SUSPEND :shared;    # Thread suspension counts by TID
@@ -155,7 +155,7 @@ Thread::Suspend - Suspend and resume operations for threads
 
 =head1 VERSION
 
-This document describes Thread::Suspend version 1.06
+This document describes Thread::Suspend version 1.07
 
 =head1 SYNOPSIS
 
@@ -316,7 +316,7 @@ Thread::Suspend Discussion Forum on CPAN:
 L<http://www.cpanforum.com/dist/Thread-Suspend>
 
 Annotated POD for Thread::Suspend:
-L<http://annocpan.org/~JDHEDDEN/Thread-Suspend-1.06/lib/Thread/Suspend.pm>
+L<http://annocpan.org/~JDHEDDEN/Thread-Suspend-1.07/lib/Thread/Suspend.pm>
 
 L<threads>, L<threads::shared>
 

@@ -13,7 +13,7 @@ WriteMakefile(
     'AUTHOR'        => 'Jerry D. Hedden <jdhedden AT cpan DOT org>',
     'VERSION_FROM'  => 'lib/Thread/Suspend.pm',
     'ABSTRACT_FROM' => 'lib/Thread/Suspend.pm',
-    'PREREQ_PM'     => { 'threads'         => 1.36,
+    'PREREQ_PM'     => { 'threads'         => 1.39,
                          'threads::shared' => 1.01,
                          'Test::More'      => 0.50,
                        },

@@ -1,4 +1,4 @@
-Thread::Suspend version 1.06
+Thread::Suspend version 1.07
 ============================
 
 This module adds suspend and resume operations for threads.
@@ -18,7 +18,7 @@ This module requires Perl 5.8.0 or later.
 
 This module requires these other modules:
 
-    threads version 1.36 or later
+    threads version 1.39 or later
     threads::shared 1.01 or later
     Test::More 0.50 or later (for installation)
 

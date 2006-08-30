@@ -1,8 +1,14 @@
 use strict;
 use warnings;
 
-use threads;
-use threads::shared;
+BEGIN {
+    if ($] > 5.008) {
+        require threads;
+        import threads;
+        require threads::shared;
+        import threads::shared;
+    }
+}
 
 use Test::More 'no_plan';
 
@@ -89,17 +95,19 @@ foreach my $thr (@threads) {
     $thr->kill('KILL')->join();
 }
 
+SKIP: {
+    skip('ok broken in 5.8.0', 3) if ($] == 5.008);
+    $SIG{'ILL'} = sub {
+        is(shift, 'ILL', 'Received suspend signal');
+    };
 
-$SIG{'ILL'} = sub {
-    is(shift, 'ILL', 'Received suspend signal');
-};
+    my $thr = threads->create('thr_func');
 
-my $thr = threads->create('thr_func');
-
-is($thr->suspend(), $thr, 'Sent suspend signal');
-threads->yield();
-sleep(1);
-is($thr->kill('KILL'), $thr, 'Thread killed');
-$thr->join();
+    is($thr->suspend(), $thr, 'Sent suspend signal');
+    threads->yield();
+    sleep(1);
+    is($thr->kill('KILL'), $thr, 'Thread killed');
+    $thr->join();
+}
 
 # EOF
