@@ -13,10 +13,15 @@ WriteMakefile(
     'AUTHOR'        => 'Jerry D. Hedden <jdhedden AT cpan DOT org>',
     'VERSION_FROM'  => 'lib/Thread/Suspend.pm',
     'ABSTRACT_FROM' => 'lib/Thread/Suspend.pm',
-    'PREREQ_PM'     => { 'threads'         => 1.39,
-                         'threads::shared' => 1.01,
-                         'Test::More'      => 0.50,
-                       },
+    'PREREQ_PM'     => {
+        'strict'          => 0,
+        'warnings'        => 0,
+        'threads'         => 1.39,
+        'threads::shared' => 1.01,
+
+        'Test::More'      => 0.50,
+    },
+
     ((ExtUtils::MakeMaker->VERSION() lt '6.25') ?
         ('PL_FILES' => { })            : ()),
     ((ExtUtils::MakeMaker->VERSION() gt '6.30') ?

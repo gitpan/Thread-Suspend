@@ -9,4 +9,6 @@ t/02_signal.t
 t/03_detach.t
 t/04_all.t
 t/05_some.t
+t/99_pod.t
+examples/suspend.pl
 META.yml                                 Module meta-data (added by MakeMaker)

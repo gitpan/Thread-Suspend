@@ -1,13 +1,18 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         Thread-Suspend
-version:      1.07
-version_from: lib/Thread/Suspend.pm
-installdirs:  site
-requires:
+--- #YAML:1.0
+name:                Thread-Suspend
+version:             1.08
+abstract:            Suspend and resume operations for threads
+license:             perl
+generated_by:        ExtUtils::MakeMaker version 6.31
+distribution_type:   module
+requires:     
+    strict:                        0
     Test::More:                    0.5
     threads:                       1.39
     threads::shared:               1.01
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.30
+    warnings:                      0
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
+    version: 1.2
+author:
+    - Jerry D. Hedden <jdhedden AT cpan DOT org>
