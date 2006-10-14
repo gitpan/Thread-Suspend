@@ -5,6 +5,13 @@ require 5.006;
 use strict;
 use warnings;
 
+use Config;
+BEGIN {
+    if (! $Config{useithreads} || $] < 5.008) {
+        die("ERROR:  This Perl not built to support threads\n");
+    }
+}
+
 use ExtUtils::MakeMaker;
 
 # Construct make file

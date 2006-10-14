@@ -3,7 +3,7 @@ package Thread::Suspend; {
 use strict;
 use warnings;
 
-our $VERSION = 1.08;
+our $VERSION = 1.09;
 
 use threads 1.39;
 use threads::shared 1.01;
@@ -155,7 +155,7 @@ Thread::Suspend - Suspend and resume operations for threads
 
 =head1 VERSION
 
-This document describes Thread::Suspend version 1.08
+This document describes Thread::Suspend version 1.09
 
 =head1 SYNOPSIS
 
@@ -304,7 +304,7 @@ module.
 
 Perl 5.8.0 or later
 
-L<threads> 1.36 or later
+L<threads> 1.39 or later
 
 L<threads::shared> 1.01 or later
 
@@ -316,7 +316,7 @@ Thread::Suspend Discussion Forum on CPAN:
 L<http://www.cpanforum.com/dist/Thread-Suspend>
 
 Annotated POD for Thread::Suspend:
-L<http://annocpan.org/~JDHEDDEN/Thread-Suspend-1.08/lib/Thread/Suspend.pm>
+L<http://annocpan.org/~JDHEDDEN/Thread-Suspend-1.09/lib/Thread/Suspend.pm>
 
 L<threads>, L<threads::shared>
 
