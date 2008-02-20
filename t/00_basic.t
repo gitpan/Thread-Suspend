@@ -1,7 +1,10 @@
 use strict;
 use warnings;
 
-use Test::More 'no_plan';
+use threads;
+use threads::shared;
+
+use Test::More 'tests' => 57;
 
 use_ok('Thread::Suspend');
 

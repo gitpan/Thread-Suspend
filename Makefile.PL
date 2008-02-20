@@ -1,16 +1,7 @@
 # Module makefile for Thread::Suspend (using ExtUtils::MakeMaker)
 
-require 5.006;
-
 use strict;
 use warnings;
-
-use Config;
-BEGIN {
-    if (! $Config{useithreads} || $] < 5.008) {
-        die("ERROR:  This Perl not built to support threads\n");
-    }
-}
 
 use ExtUtils::MakeMaker;
 
@@ -21,11 +12,8 @@ WriteMakefile(
     'VERSION_FROM'  => 'lib/Thread/Suspend.pm',
     'ABSTRACT_FROM' => 'lib/Thread/Suspend.pm',
     'PREREQ_PM'     => {
-        'strict'          => 0,
-        'warnings'        => 0,
         'threads'         => 1.39,
         'threads::shared' => 1.01,
-
         'Test::More'      => 0.50,
     },
 
@@ -34,5 +22,16 @@ WriteMakefile(
     ((ExtUtils::MakeMaker->VERSION() gt '6.30') ?
         ('LICENSE'  => 'perl')         : ()),
 );
+
+# Additional 'make' targets
+sub MY::postamble
+{
+    return <<'_EXTRAS_';
+fixfiles:
+	@dos2unix `cat MANIFEST`
+	@$(CHMOD) 644 `cat MANIFEST`
+	@$(CHMOD) 755 examples/*.pl
+_EXTRAS_
+}
 
 # EOF

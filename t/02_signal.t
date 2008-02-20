@@ -1,16 +1,10 @@
 use strict;
 use warnings;
 
-BEGIN {
-    if ($] > 5.008) {
-        require threads;
-        import threads;
-        require threads::shared;
-        import threads::shared;
-    }
-}
+use threads;
+use threads::shared;
 
-use Test::More 'no_plan';
+use Test::More 'tests' => 23;
 
 use_ok('Thread::Suspend', 'SIGILL');
 
@@ -96,7 +90,7 @@ foreach my $thr (@threads) {
 }
 
 SKIP: {
-    skip('ok broken in 5.8.0', 3) if ($] == 5.008);
+    skip('Test::More broken WRT threads in 5.8.0', 3) if ($] == 5.008);
     $SIG{'ILL'} = sub {
         is(shift, 'ILL', 'Received suspend signal');
     };

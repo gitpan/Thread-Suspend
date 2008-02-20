@@ -1,22 +1,18 @@
 use strict;
 use warnings;
 
-BEGIN {
-    eval {
-        require Test::More;
-        import Test::More 'tests' => 2;
-    };
-    if ($@) {
-        print("1..0 # Skip: Test::More not available\n");
-        exit(0);
-    }
+use Test::More;
+if ($ENV{RUN_MAINTAINER_TESTS}) {
+    plan 'tests' => 3;
+} else {
+    plan 'skip_all' => 'Module maintainer tests';
 }
 
 SKIP: {
     eval 'use Test::Pod 1.26';
     skip('Test::Pod 1.26 required for testing POD', 1) if $@;
 
-    pod_file_ok('blib/lib/Thread/Suspend.pm');
+    pod_file_ok('lib/Thread/Suspend.pm');
 }
 
 SKIP: {
@@ -34,4 +30,23 @@ SKIP: {
     );
 }
 
-# EOF
+SKIP: {
+    eval 'use Test::Spelling';
+    skip("Test::Spelling required for testing POD spelling", 1) if $@;
+    if (system('aspell help >/dev/null 2>&1')) {
+        skip("'aspell' required for testing POD spelling", 1);
+    }
+    set_spell_cmd('aspell list --lang=en');
+    add_stopwords(<DATA>);
+    pod_file_spelling_ok('lib/Thread/Suspend.pm', 'POD spelling');
+    unlink("/home/$ENV{'USER'}/en.prepl", "/home/$ENV{'USER'}/en.pws");
+}
+
+__DATA__
+
+Hedden
+SIGUSR1
+TIDs
+cpan
+
+__END__
