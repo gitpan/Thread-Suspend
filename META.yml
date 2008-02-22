@@ -1,11 +1,11 @@
 --- #YAML:1.0
 name:                Thread-Suspend
-version:             1.11
+version:             1.12
 abstract:            Suspend and resume operations for threads
 license:             perl
 author:              
     - Jerry D. Hedden <jdhedden AT cpan DOT org>
-generated_by:        ExtUtils::MakeMaker version 6.43_01
+generated_by:        ExtUtils::MakeMaker version 6.42
 distribution_type:   module
 requires:     
     Test::More:                    0.5
