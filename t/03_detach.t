@@ -12,97 +12,68 @@ BEGIN {
 use threads;
 use threads::shared;
 
-use Test::More 'tests' => 42;
+
+### Preamble ###
+
+our $nthreads;
+BEGIN { $nthreads = 3; }
+use Test::More 'tests' => 3 + 13 * $nthreads;
+
+
+### Load module ###
 
 use_ok('Thread::Suspend');
 
-my %COUNTS :shared;
-my %DONE :shared;
 
-$SIG{'KILL'} = sub {
-    my $tid = threads->tid();
-    $DONE{$tid} = 1;
-    threads->exit();
-};
+### Setup ###
 
-sub thr_func
-{
-    my $tid = threads->tid();
-    while (++$COUNTS{$tid}) {
-        threads->yield();
-    }
-}
+require 't/test.pl';
 
-sub check {
-    my ($thr, $running) = @_;
-    my $tid = $thr->tid();
-
-    my ($begin, $end);
-    do {
-        do {
-            threads->yield();
-            $begin = $COUNTS{$tid};
-        } while (! $begin);
-        threads->yield() for (1..3);
-        sleep(1);
-        threads->yield() for (1..3);
-        $end = $COUNTS{$tid};
-    } while (! $end);
-    if ($running eq 'running') {
-        ok($begin < $end, "Thread $tid running");
-    } else {
-        ok($begin == $end, "Thread $tid stopped");
-    }
-}
-
-my @threads;
-for (1..3) {
-    push(@threads, threads->create('thr_func'));
-}
-threads->yield();
-sleep(1);
-
-is(scalar(threads->list()), 3, 'Threads created');
-
-foreach my $thr (@threads) {
-    $thr->detach();
-}
-threads->yield();
-sleep(1);
-
+my @threads = make_threads($nthreads);
+$_->detach() foreach (@threads);
 is(scalar(threads->list()), 0, 'Threads detached');
 
+
+### Functionality testing ###
+
 foreach my $thr (@threads) {
     my $tid = $thr->tid();
+
     ok(! threads->is_suspended(), 'No reported suspended threads');
     is($thr->is_suspended(), 0, "Thread $tid not suspended");
-    check($thr, 'running');
+    check($thr, 'running', __LINE__);
 
     $thr->suspend();
     threads->yield();
     is($thr->is_suspended(), 1, "Thread $tid suspended");
-    check($thr, 'stopped');
+    check($thr, 'stopped', __LINE__);
 
     $thr->suspend();
     threads->yield();
     ok(! threads->is_suspended(), 'No reported suspended threads');
     is($thr->is_suspended(), 2, "Thread $tid suspended twice");
-    check($thr, 'stopped');
+    check($thr, 'stopped', __LINE__);
 
     $thr->resume();
     threads->yield();
     is($thr->is_suspended(), 1, "Thread $tid still suspended");
-    check($thr, 'stopped');
+    check($thr, 'stopped', __LINE__);
 
     $thr->resume();
     threads->yield();
     is($thr->is_suspended(), 0, "Thread $tid not suspended");
-    check($thr, 'running');
+    check($thr, 'running', __LINE__);
+}
 
+
+### Cleanup ###
+
+foreach my $thr (@threads) {
+    my $tid = $thr->tid();
     is($thr->kill('KILL'), $thr, "Thread $tid killed");
-    threads->yield();
-    while (! exists($DONE{$tid})) {
-        sleep(1);
+    no warnings 'once';
+    while (! $::DONE[$tid]) {
+        pause(0.1);
     }
 }
 

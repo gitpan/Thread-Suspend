@@ -10,5 +10,6 @@ t/03_detach.t
 t/04_all.t
 t/05_some.t
 t/99_pod.t
+t/test.pl
 examples/suspend.pl
 META.yml                                 Module meta-data (added by MakeMaker)
