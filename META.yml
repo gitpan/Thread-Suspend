@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Thread-Suspend
-version:             1.15
+version:             1.16
 abstract:            Suspend and resume operations for threads
 license:             perl
 author:              

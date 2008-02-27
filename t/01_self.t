@@ -36,7 +36,7 @@ sub counter2
     my $tid = threads->tid();
     threads->self()->suspend();
     while (1) {
-        delete($::COUNTS[$tid]);
+        delete($::COUNTS{$tid});
         threads->yield();
     }
 }
