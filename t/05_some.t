@@ -16,7 +16,7 @@ use threads::shared;
 
 our $nthreads;
 BEGIN { $nthreads = 3; }
-use Test::More 'tests' => 73;
+use Test::More 'tests' => 72;
 
 
 ### Load module ###
@@ -33,7 +33,6 @@ my @threads = make_threads($nthreads);
 
 ### Functionality testing ###
 
-is(scalar(threads->list()), scalar(@threads), 'Threads created');
 ok(! threads->is_suspended(), 'No threads suspended');
 foreach my $thr (@threads) {
     my $tid = $thr->tid();

@@ -1,5 +1,8 @@
 Revision history for Perl extension Thread::Suspend.
 
+1.15 Wed Feb 27 13:43:14 2008
+	- More fixes to tests
+
 1.14 Wed Feb 27 01:14:00 2008
 	- More fixes to tests
 

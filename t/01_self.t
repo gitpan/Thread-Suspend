@@ -44,6 +44,7 @@ sub counter2
 my @threads;
 push(@threads, threads->create('counter2')) for (1..$nthreads);
 is(scalar(threads->list()), $nthreads, 'Threads created');
+pause(0.1);
 
 
 ### Functionality testing ###
