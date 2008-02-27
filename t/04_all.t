@@ -142,7 +142,6 @@ foreach my $thr (@threads) {
     is($thr->is_suspended(), 0, "Thread $tid not suspended");
     check($thr, 'running', __LINE__);
 }
-threads->yield();
 
 
 ### Cleanup ###

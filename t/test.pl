@@ -16,10 +16,7 @@ sub counter
 {
     my $tid = threads->tid();
     while (1) {
-        {
-            lock(@COUNTS);
-            $COUNTS[$tid]++;
-        }
+        delete($COUNTS[$tid]);
         threads->yield();
     }
 }
@@ -35,28 +32,12 @@ sub pause
 sub check {
     my ($thr, $running, $line) = @_;
     my $tid = $thr->tid();
-    my ($begin, $end);
     pause(0.1);
-    {
-        lock(@COUNTS);
-        $COUNTS[$tid] = 0;
-    }
+    $COUNTS[$tid] = 1;
     pause(0.1);
-    {
-        lock(@COUNTS);
-        $begin = $COUNTS[$tid];
-    }
-    pause(0.5);
-    {
-        lock(@COUNTS);
-        $end = $COUNTS[$tid];
-    }
-    if ($running eq 'running') {
-        my $delta = $end - $begin;
-        ok($begin < $end, "Thread $tid running (delta=$delta) (see line $line)");
-    } else {
-        is($end, 0, "Thread $tid stopped (see line $line)");
-    }
+    ok(($running eq 'running') ? ! exists($COUNTS[$tid])
+                               :   exists($COUNTS[$tid]),
+            "Thread $tid $running (see line $line)");
 }
 
 

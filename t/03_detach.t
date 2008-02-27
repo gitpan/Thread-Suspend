@@ -44,23 +44,19 @@ foreach my $thr (@threads) {
     check($thr, 'running', __LINE__);
 
     $thr->suspend();
-    threads->yield();
     is($thr->is_suspended(), 1, "Thread $tid suspended");
     check($thr, 'stopped', __LINE__);
 
     $thr->suspend();
-    threads->yield();
     ok(! threads->is_suspended(), 'No reported suspended threads');
     is($thr->is_suspended(), 2, "Thread $tid suspended twice");
     check($thr, 'stopped', __LINE__);
 
     $thr->resume();
-    threads->yield();
     is($thr->is_suspended(), 1, "Thread $tid still suspended");
     check($thr, 'stopped', __LINE__);
 
     $thr->resume();
-    threads->yield();
     is($thr->is_suspended(), 0, "Thread $tid not suspended");
     check($thr, 'running', __LINE__);
 }
