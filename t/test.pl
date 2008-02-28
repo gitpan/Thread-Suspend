@@ -30,27 +30,28 @@ sub pause
 }
 
 sub check {
-    my ($thr, $running, $line) = @_;
+    my ($thr, $state, $line) = @_;
     my $tid = $thr->tid();
 
+    pause(0.1);
     delete($COUNTS{$tid});
     if (exists($COUNTS{$tid})) {
         ok(0, "BUG: \$COUNTS{$tid} not deleted");
     }
     $COUNTS{$tid} = $tid;
 
-    if ($running eq 'running') {
+    if ($state eq 'running') {
         for (1..100) {
             pause(0.1);
             last if (! exists($COUNTS{$tid}));
         }
-        ok(! exists($COUNTS{$tid}), "Thread $tid $running (see line $line)");
+        ok(! exists($COUNTS{$tid}), "Thread $tid $state (line $line)");
     } else {
         for (1..3) {
             pause(0.1);
             last if (! exists($COUNTS{$tid}));
         }
-        ok(exists($COUNTS{$tid}), "Thread $tid $running (see line $line)");
+        ok(exists($COUNTS{$tid}), "Thread $tid $state (line $line)");
     }
 }
 
