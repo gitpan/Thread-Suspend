@@ -76,4 +76,6 @@ foreach my $thr (@threads) {
 
 $_->kill('KILL')->join() foreach (@threads);
 
+exit(0);
+
 # EOF

@@ -162,4 +162,6 @@ foreach my $thr (@threads) {
     }
 }
 
+exit(0);
+
 # EOF

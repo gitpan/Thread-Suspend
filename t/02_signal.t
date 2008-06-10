@@ -82,4 +82,6 @@ SKIP: {
     $thr->join();
 }
 
+exit(0);
+
 # EOF

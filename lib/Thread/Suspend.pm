@@ -3,7 +3,7 @@ package Thread::Suspend; {
 use strict;
 use warnings;
 
-our $VERSION = '1.17';
+our $VERSION = '1.18';
 
 use threads 1.39;
 use threads::shared 1.01;
@@ -81,6 +81,7 @@ sub threads::resume
 {
     my ($thing, @threads) = @_;
 
+    lock(%SUSPEND);
     if ($thing eq 'threads') {
         if (@threads) {
             # Resume specified threads
@@ -91,7 +92,6 @@ sub threads::resume
                             @threads;
         } else {
             # Resume all threads
-            lock(%SUSPEND);
             @threads = grep { $_ }
                        map  { threads->object($_) }
                             keys(%SUSPEND);
@@ -103,7 +103,6 @@ sub threads::resume
 
     # Resume threads
     my $resume = 0;
-    lock(%SUSPEND);
     foreach my $thr (@threads) {
         my $tid = $thr->tid();
         if ($SUSPEND{$tid}) {
@@ -155,7 +154,7 @@ Thread::Suspend - Suspend and resume operations for threads
 
 =head1 VERSION
 
-This document describes Thread::Suspend version 1.17
+This document describes Thread::Suspend version 1.18
 
 =head1 SYNOPSIS
 
@@ -316,7 +315,7 @@ Thread::Suspend Discussion Forum on CPAN:
 L<http://www.cpanforum.com/dist/Thread-Suspend>
 
 Annotated POD for Thread::Suspend:
-L<http://annocpan.org/~JDHEDDEN/Thread-Suspend-1.17/lib/Thread/Suspend.pm>
+L<http://annocpan.org/~JDHEDDEN/Thread-Suspend-1.18/lib/Thread/Suspend.pm>
 
 Source repository:
 L<http://code.google.com/p/thread-suspend/>

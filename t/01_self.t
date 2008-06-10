@@ -83,4 +83,6 @@ while (my $thr = shift(@threads)) {
     $thr->kill('KILL')->join();
 }
 
+exit(0);
+
 # EOF
