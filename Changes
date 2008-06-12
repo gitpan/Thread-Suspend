@@ -1,5 +1,8 @@
 Revision history for Perl extension Thread::Suspend.
 
+1.19 Thu Jun 12 13:46:30 2008
+	- Fix SKIPs in tests
+
 1.18 Tue Jun 10 16:58:13 2008
 	- End all tests with exit(0)
 
