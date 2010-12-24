@@ -74,7 +74,7 @@ SKIP: {
         is(shift, 'ILL', 'Received suspend signal');
     };
 
-    my $thr = threads->create('counter');
+    my $thr = threads->create('checker');
 
     is($thr->suspend(), $thr, 'Sent suspend signal');
     pause(0.1);

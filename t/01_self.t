@@ -29,20 +29,20 @@ use_ok('Thread::Suspend');
 
 require 't/test.pl';
 
-sub counter2
+sub checker2
 {
     no warnings 'once';
 
     my $tid = threads->tid();
     threads->self()->suspend();
     while (1) {
-        delete($::COUNTS{$tid});
+        delete($::CHECKER{$tid});
         threads->yield();
     }
 }
 
 my @threads;
-push(@threads, threads->create('counter2')) for (1..$nthreads);
+push(@threads, threads->create('checker2')) for (1..$nthreads);
 is(scalar(threads->list()), $nthreads, 'Threads created');
 pause(0.1);
 

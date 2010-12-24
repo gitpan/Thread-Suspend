@@ -10,13 +10,13 @@ $SIG{'KILL'} = sub {
 };
 
 
-our %COUNTS :shared;
+our %CHECKER :shared;
 
-sub counter
+sub checker
 {
     my $tid = threads->tid();
     while (1) {
-        delete($COUNTS{$tid});
+        delete($CHECKER{$tid});
         threads->yield();
     }
 }
@@ -34,24 +34,24 @@ sub check {
     my $tid = $thr->tid();
 
     pause(0.1);
-    delete($COUNTS{$tid});
-    if (exists($COUNTS{$tid})) {
-        ok(0, "BUG: \$COUNTS{$tid} not deleted");
+    delete($CHECKER{$tid});
+    if (exists($CHECKER{$tid})) {
+        ok(0, "BUG: \$CHECKER{$tid} not deleted");
     }
-    $COUNTS{$tid} = $tid;
+    $CHECKER{$tid} = $tid;
 
     if ($state eq 'running') {
         for (1..100) {
             pause(0.1);
-            last if (! exists($COUNTS{$tid}));
+            last if (! exists($CHECKER{$tid}));
         }
-        ok(! exists($COUNTS{$tid}), "Thread $tid $state (line $line)");
+        ok(! exists($CHECKER{$tid}), "Thread $tid $state (line $line)");
     } else {
         for (1..3) {
             pause(0.1);
-            last if (! exists($COUNTS{$tid}));
+            last if (! exists($CHECKER{$tid}));
         }
-        ok(exists($COUNTS{$tid}), "Thread $tid $state (line $line)");
+        ok(exists($CHECKER{$tid}), "Thread $tid $state (line $line)");
     }
 }
 
@@ -60,7 +60,7 @@ sub make_threads
 {
     my $nthreads = shift;
     my @threads;
-    push(@threads, threads->create('counter')) for (1..$nthreads);
+    push(@threads, threads->create('checker')) for (1..$nthreads);
     is(scalar(threads->list()), $nthreads, 'Threads created');
     return @threads;
 }

@@ -1,4 +1,4 @@
-Thread::Suspend version 1.19
+Thread::Suspend version 1.21
 ============================
 
 This module adds suspend and resume operations for threads.
@@ -24,7 +24,7 @@ This module requires these other modules:
 
 COPYRIGHT AND LICENCE
 
-Copyright 2006 - 2008 Jerry D. Hedden <jdhedden AT cpan DOT org>
+Copyright 2006 - 2009 Jerry D. Hedden <jdhedden AT cpan DOT org>
 
 This program is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.
