@@ -77,7 +77,7 @@ SKIP: {
     my $thr = threads->create('checker');
 
     is($thr->suspend(), $thr, 'Sent suspend signal');
-    pause(0.1);
+    pause();
     is($thr->kill('KILL'), $thr, 'Thread killed');
     $thr->join();
 }

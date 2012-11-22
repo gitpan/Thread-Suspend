@@ -1,8 +1,9 @@
 use strict;
 use warnings;
 
+use Test::More;
 
-our @DONE :shared;
+our @DONE :shared;   # Referenced outside this file
 
 $SIG{'KILL'} = sub {
     $DONE[threads->tid()] = 1;
@@ -10,48 +11,72 @@ $SIG{'KILL'} = sub {
 };
 
 
-our %CHECKER :shared;
+our %CHECKER :shared;   # Referenced outside this file
+
+my $DEBUG = 0;   # Set true to debug
+
+sub uncheck
+{
+    my $tid = shift;
+    lock(%CHECKER);
+    if (delete($CHECKER{$tid})) {
+        diag("$tid cleared") if $DEBUG;
+    } else {
+        diag("$tid not set") if $DEBUG;
+    }
+}
+
+
+sub probe
+{
+    lock(%CHECKER);
+    return exists($CHECKER{shift()});
+}
+
 
 sub checker
 {
     my $tid = threads->tid();
     while (1) {
-        delete($CHECKER{$tid});
-        threads->yield();
+        uncheck($tid);
+        pause();
     }
 }
 
 
 sub pause
 {
-    threads->yield() for (0..$::nthreads);
-    select(undef, undef, undef, shift);
-    threads->yield() for (0..$::nthreads);
+    select(undef, undef, undef, 0.25*rand());
 }
+
 
 sub check {
     my ($thr, $state, $line) = @_;
     my $tid = $thr->tid();
 
-    pause(0.1);
-    delete($CHECKER{$tid});
-    if (exists($CHECKER{$tid})) {
-        ok(0, "BUG: \$CHECKER{$tid} not deleted");
+    pause();
+    {
+        lock(%CHECKER);
+        delete($CHECKER{$tid});
+        if (exists($CHECKER{$tid})) {
+            ok(0, "BUG: \$CHECKER{$tid} not deleted");
+        }
+        $CHECKER{$tid} = $tid;
+        diag("$tid set") if $DEBUG;
     }
-    $CHECKER{$tid} = $tid;
 
     if ($state eq 'running') {
         for (1..100) {
-            pause(0.1);
-            last if (! exists($CHECKER{$tid}));
+            pause();
+            last if (! probe($tid));
         }
-        ok(! exists($CHECKER{$tid}), "Thread $tid $state (line $line)");
+        ok(! probe($tid), "Thread $tid $state (line $line)");
     } else {
-        for (1..3) {
-            pause(0.1);
-            last if (! exists($CHECKER{$tid}));
+        for (1..5) {
+            pause();
+            last if (! probe($tid));
         }
-        ok(exists($CHECKER{$tid}), "Thread $tid $state (line $line)");
+        ok(probe($tid), "Thread $tid $state (line $line)");
     }
 }
 

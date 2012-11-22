@@ -3,7 +3,7 @@ package Thread::Suspend; {
 use strict;
 use warnings;
 
-our $VERSION = '1.21';
+our $VERSION = '1.22';
 
 use threads 1.39;
 use threads::shared 1.01;
@@ -154,7 +154,7 @@ Thread::Suspend - Suspend and resume operations for threads
 
 =head1 VERSION
 
-This document describes Thread::Suspend version 1.21
+This document describes Thread::Suspend version 1.22
 
 =head1 SYNOPSIS
 

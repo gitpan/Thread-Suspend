@@ -36,15 +36,18 @@ sub checker2
     my $tid = threads->tid();
     threads->self()->suspend();
     while (1) {
-        delete($::CHECKER{$tid});
-        threads->yield();
+        {
+            lock(%::CHECKER);
+            delete($::CHECKER{$tid});
+        }
+        select(undef, undef, undef, 0.5*rand());
     }
 }
 
 my @threads;
 push(@threads, threads->create('checker2')) for (1..$nthreads);
 is(scalar(threads->list()), $nthreads, 'Threads created');
-pause(0.1);
+pause();
 
 
 ### Functionality testing ###

@@ -69,7 +69,7 @@ foreach my $thr (@threads) {
     is($thr->kill('KILL'), $thr, "Thread $tid killed");
     no warnings 'once';
     while (! $::DONE[$tid]) {
-        pause(0.1);
+        pause();
     }
 }
 
